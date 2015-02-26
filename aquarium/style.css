@@ -1,0 +1,65 @@
+body{
+	text-align: center;
+	vertical-align: middle;
+	width: 100vw;
+	height: 100vh;
+	background-color: #55D;
+}
+
+#aquarium{
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+	width: 640px;
+	height: 480px;
+	background-color: #00F;
+	border-radius: 15px;
+}
+
+.fish-y{
+	position: relative;
+	left: 0px;
+	-webkit-animation: y 4s ease-in-out infinite;
+	        animation: y 4s ease-in-out infinite;
+}
+
+@-webkit-keyframes y{
+	0%{top: 100px}
+	50%{top: 350px}
+	100%{top: 100px}
+}
+
+@keyframes y{
+	0%{top: 100px}
+	50%{top: 350px}
+	100%{top: 100px}
+}
+
+.fish-x{
+	position: relative;
+	width:0px;
+	top: 0px;
+	-webkit-animation: x 11s ease-in-out infinite;
+	        animation: x 11s ease-in-out infinite;
+}
+
+
+@-webkit-keyframes x{
+	0%{left:550px}
+	40%{-webkit-transform: none;transform: none}
+	50%{left:20px; -webkit-transform: translateX(100px) scaleX(-1); transform: translateX(100px) scaleX(-1)}
+	90%{-webkit-transform: translateX(100px) scaleX(-1);transform: translateX(100px) scaleX(-1) }
+	100%{left:550px; -webkit-transform: none; transform: none}
+}
+
+
+@keyframes x{
+	0%{left:550px}
+	40%{-webkit-transform: none;transform: none}
+	50%{left:20px; -webkit-transform: translateX(100px) scaleX(-1); transform: translateX(100px) scaleX(-1)}
+	90%{-webkit-transform: translateX(100px) scaleX(-1);transform: translateX(100px) scaleX(-1) }
+	100%{left:550px; -webkit-transform: none; transform: none}
+}
