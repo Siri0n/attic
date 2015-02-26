@@ -1,0 +1,1 @@
+Some static html/css/js stuff collection.
