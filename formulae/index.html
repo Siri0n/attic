@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Formulae</title>
+	<style>
+		body{
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			text-align: center;
+		}
+		header{
+			padding: 1em;
+			font-size: 1.5em;
+		}
+		#formula{
+			width: 80%;
+			margin-left: 10%;
+			display: inline;
+			font-size: 1.2em;
+		}
+		#parse{
+			font-size: 1.2em;
+			display: inline;
+		}
+		#tree{
+			display: block;
+			width: 80%;
+			max-height: 80vh;
+			margin-left: 10%;
+			margin-top: 1em;
+			overflow: auto;
+			transform:rotateX(180deg);
+   			-ms-transform:rotateX(180deg);
+   			-webkit-transform:rotateX(180deg);
+		}
+		#tree > *{
+			transform:rotateX(180deg);
+		}
+		#tree div{	
+			white-space: nowrap;
+			display: inline-block;
+			border: 1px solid black;
+			border-radius: 5px;
+			text-align: center;
+			margin: 5px;
+			padding: 5px;
+		}
+		#tree div span{
+			font-size: 1.2em;
+			font-weight: 900;
+			cursor: pointer;
+		}
+
+		.message{
+			margin-top: 1em;
+			font-size: 1.5em;
+			display:none;
+		}
+		.message.error{
+			display:block;
+		}
+		div:hover + .message{
+			display: block;
+		}
+	</style>
+	<script type="text/javascript" src="parser.js"></script>
+</head>
+<body>
+	<header>Formula parser</header>
+	<input type="text" id="formula" placeholder="Enter your formula here..." onkeypress="if(event.keyCode == 13) {event.preventDefault(); parse()}"></input>
+	<button id="parse" onclick="parse();" >Parse</button>
+	<div id="tree" onclick="evaluationStart(event);"></div>
+	<div class="message"><footer>
+</body>
+</html>

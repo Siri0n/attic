@@ -2,7 +2,7 @@ module.exports = function(grunt){
 	grunt.initConfig({
 		autoprefixer:{
 			options:{
-
+				browsers: ["last 2 versions", "ie8", "ie9"]
 			},
 			aquarium:{
 				src: "style.source.css",
