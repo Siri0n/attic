@@ -42,28 +42,51 @@
 		#tree div{	
 			white-space: nowrap;
 			display: inline-block;
-			border: 1px solid black;
+			border: 1px solid #111;
 			border-radius: 5px;
+			cursor: pointer;
 			text-align: center;
 			margin: 5px;
 			padding: 5px;
+			background-color: #FFF;
+			position: relative;
+			transition: background-color 0.5s linear;
 		}
-		#tree div span{
+		
+		#tree span{
 			font-size: 1.2em;
-			font-weight: 900;
-			cursor: pointer;
+			pointer-events:none;
+		}
+		.hover{
+			background-color: #DDD !important;
 		}
 
-		.message{
-			margin-top: 1em;
-			font-size: 1.5em;
-			display:none;
+		#tree div span.eval{
+			display: none;
 		}
-		.message.error{
-			display:block;
+		
+		#tree div.closed::after{
+			position: absolute;
+			bottom: -5px;
+			right: -5px;
+			height: 100%;
+			width: 100%;
+			content: "";
+			border-bottom: 1px solid black;
+			border-right: 1px solid black;
+			border-radius: 5px;
 		}
-		div:hover + .message{
-			display: block;
+
+		#tree div.closed *{
+			display: none;
+		}
+		
+		#tree div.closed span.eval{
+			display: inline !important;
+		}
+		.error{
+			border: 0 !important;
+			color: red;
 		}
 	</style>
 	<script type="text/javascript" src="parser.js"></script>
@@ -73,6 +96,5 @@
 	<input type="text" id="formula" placeholder="Enter your formula here..." onkeypress="if(event.keyCode == 13) {event.preventDefault(); parse()}"></input>
 	<button id="parse" onclick="parse();" >Parse</button>
 	<div id="tree" onclick="evaluationStart(event);"></div>
-	<div class="message"><footer>
 </body>
 </html>

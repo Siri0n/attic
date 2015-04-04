@@ -200,30 +200,40 @@ function tree(tokenArray){
 	return root;
 }
 
+function evalTree(node){
+	var type = node.value().type;
+	var result="lol";
+	if(type == "leaf"){
+		result = node.value().value;
+	}else if(type == "brackets" || type=="root"){
+		result = evalTree(node.children(0));
+	}else if(type == "prefix" || type == "postfix" || type == "infix"){
+		result = funcs[node.value().func](node.children().map(evalTree));
+	}
+	node.value().eval = result;
+	console.log(result);
+	return result;
+}
+
 function render(node){
 	var type = node.value().type;
-	console.log(type);
 	if(type == "leaf"){
-		return "<div>" + node.value().value + "</div>";
+		return "<div class='leaf'><span>" + node.value().value + "</span></div>";
 	}else if(type == "prefix" || type == "postfix"){
-		return "<div><span data-func='" + node.value().func + "'>" + (node.value().pretty || node.value().value) + "</span><br>" + render(node.children(0)) + "</div>";
+		return "<div><span class='val'>" + (node.value().pretty || node.value().value) + "</span>" + 
+		"<span class='eval'>" + node.value().eval + "</span><br>" + render(node.children(0)) + "</div>";
 	}else if(type == "infix"){
 		if(node.value().value == ","){
 			return render(node.children(0)) + render(node.children(1));
 		}else{
-			return "<div><span data-func='" + node.value().func + "'>" + (node.value().pretty || node.value().value) + "</span><br>" + render(node.children(0)) + render(node.children(1)) + "</div>";
+			return "<div><span class='val'>" + (node.value().pretty || node.value().value) + "</span>" +
+			"<span class='eval'>" + node.value().eval + "</span><br>" + render(node.children(0)) + render(node.children(1)) + "</div>";
 		}
 	}else{
 		return render(node.children(0));
 	}
 }
 
-function evaluationStart(event){
-	if(!event.target.dataset.func){
-		return;
-	}
-	event.target.parentNode.innerHTML = evaluateNode(event.target.parentNode);
-}
 
 var funcs = {
 	plus: function(args){
@@ -255,6 +265,13 @@ var funcs = {
 			result *= mult++;
 		}
 		return result;
+	},
+	comma: function(args){
+		if(Array.isArray(args[0])){
+			return args[0].concat([args[1]]);
+		}else{
+			return [args[0], args[1]];
+		}
 	}
 }
 
@@ -272,30 +289,37 @@ Object.keys(funcs).forEach(function(key){
 	}
 });
 
-function evaluateNode(node, callback){
-	if(!node.children.length){
-		return node.innerHTML;
-	}else{
-		var children = [].slice.call(node.children, 2);
-		var func = node.children[0].dataset.func;
-		return funcs[func](children.map(evaluateNode));
-	}
-	
-}
-
 function parse(){
 	var formula = document.getElementById("formula").value;
 	var treeDiv = document.getElementById("tree");
-	var message = document.querySelector(".message");
 	try{
-		treeDiv.innerHTML = render(tree(tokenize(formula)));
-		message.classList.remove("error");
-		message.innerHTML = "Click operation sign to evaluate.";
+		var root = tree(tokenize(formula));
+		console.log(evalTree(root));
+		treeDiv.innerHTML = render(root);
+		[].slice.call(treeDiv.getElementsByTagName("div"))
+			.forEach(function(elem){
+				elem.addEventListener("mouseover", function(e){
+					e.target.classList.add("hover");
+					e.stopPropagation();
+					return false;
+				}, false);
+				elem.addEventListener("mouseout", function(e){
+					e.target.classList.remove("hover");
+					e.stopPropagation();
+					return false;
+				}, false);
+				elem.addEventListener("click", function(e){
+					if(!e.target.classList.contains("leaf")){
+						e.target.classList.toggle("closed");
+					}
+					e.stopPropagation();
+					return false;
+				}, false);
+			});
 	}catch(e){
 		console.log(e);
-		message.innerHTML = "Something is wrong with your formula.<br>" +
-			"Availible operations: + - * ^ ! max min.<br>" +
-			"Only whole numbers allowed.";
-		message.classList.add("error");
+		treeDiv.innerHTML = "<div class='error'>Something is wrong with your formula.<br>" +
+			"Available operations: + - * ^ ! max min.<br>" +
+			"Only integers are allowed.</div>";
 	}
 }
