@@ -12,17 +12,24 @@
 		body{
 			width: 100%;
 			height: 100%;
-			padding: 50px;
+			padding: 100px 50px;
 			max-width: 1024px;
 			margin: 100px auto 0px;
-			text-align: center;
 			background-color: #fff;
 		}
-		body > *{
+		body > span{
+			margin-left: 100px;
+		}
+		body > div{
+			width: 100%;
+			text-align: center;
 			margin: 30px 0px;
 		}
 		span[contenteditable]{
 			border: 0.5px dotted #aaa; 
+			overflow-wrap: break-word;
+	  		word-wrap: break-word;
+		 	-ms-word-break: break-all;
 		}
 		span.pale{
 			color: #aaa;
@@ -30,7 +37,7 @@
 	</style>
 </head>
 <body>
-	<span>Число, равное</span>
+	<span>Число, которое равняется</span>
 	<div>
 		<span id="rn" contenteditable>1</span>
 		<span id="rslash">/</span>
@@ -52,14 +59,24 @@
 		qd: "",
 		phi: ""
 	}
-	Object.keys(model).forEach(function(key){
-		document.getElementById(key).addEventListener("keyup", doThings);
+	var R = PhiBase.R,
+		R5 = PhiBase.R5,
+		toPhiBase = PhiBase.toPhiBase,
+		fromPhiBase = PhiBase.fromPhiBase;
+
+	doThings();
+
+	["rn", "rd", "qn", "qd"].forEach(function(key){
+		document.getElementById(key).addEventListener("keyup", doThings.bind(null, 0));
 	});
+	document.getElementById("phi").addEventListener("keyup", doThings.bind(null, 1));
 	
-	function doThings(){
+	function doThings(dir){
 		updateModel();
 		correctModel();
+		calculate(dir);
 		updateDOM();
+		applyStyles();
 	}
 	function updateModel(){
 		Object.keys(model).forEach(function(key){
@@ -67,15 +84,63 @@
 		})
 	}
 
-	function correctModel(){
-		remove(["rn", "rd", "qn", "qd"], /[^\d+\-\s]/g);
+	function correctModel(){ //welcome to hell
+		remove(["rn", "rd", "qn", "qd"], /[^\d\-]/g);
 		remove(["phi"], /[^01\(\)\.\-]/g);
-		remove(["rn", "rd", "qd"], /[+\s]/g);
+		remove(["rn", "rd", "qn", "qd", "phi"], /^[+\-]?0+(?!\-?\.|$)/g);
 		remove(["rd", "qd"], /\-/g);
+		["rn", "qn", "phi"].forEach(function(key){
+			if(~model[key].indexOf("-")){
+				model[key] = "-" + model[key].replace(/[+\-]/g, "");
+			}
+		});
+		remove(["phi"], /\)(?=.*[\(\)\.])/g);
+		remove(["phi"], /\((?=.*[\(\.])/g);
+		if(/[\(\)]/.test(model.phi) && !~model.phi.indexOf(".")){
+			remove(["phi"], /[\(\)]/g);
+		}
+		if(~model.phi.indexOf("(") && !~model.phi.indexOf(")")){
+			model.phi += ")";
+		}
+		if(!~model.phi.indexOf("(") && ~model.phi.indexOf(")")){
+			remove(["phi"], /\)/g);
+		}
+		model.phi = model.phi.replace("()", "(0)");
+
+		["rn", "rd", "qn", "qd", "phi"].forEach(function(key){
+			if(model[key] == "" || model[key] == "-"){
+				model[key] = "0";
+			}
+		});
+		["rd", "qd"].forEach(function(key){
+			if(model[key] == "0"){
+				model[key] = "1";
+			}
+		});
+
 	}
 
 	function calculate(direction){
+		var number;
+		if(direction){
+			number = fromPhiBase(model.phi);
+			model.rn = number.r.n + "";
+			model.rd = number.r.d + "";
+			model.qn = number.q.n + "";
+			model.qd = number.q.d + "";
+		}else{
+			number = R5(42);
+			number.r.n = model.rn | 0;
+			number.r.d = model.rd | 0;
+			number.q.n = model.qn | 0;
+			number.q.d = model.qd | 0;
+			model.phi = toPhiBase(number);
+		}
 
+		if(!/[+\-]/.test(model.qn)){
+			model.qn = "+" + model.qn;
+		}
+		model.qn = model.qn.replace(/^(.)/, "$1 ");
 	}
 
 	function updateDOM(){
@@ -84,15 +149,24 @@
 				document.getElementById(key).innerText = model[key];
 			}
 		})
+		//document.getElementById("val").innerText = fromPhiBase(model.phi).valueOf();
 	}
 
 	function applyStyles(){
-
+		pale(["rd", "rslash"], model.rd == "1");
+		pale(["qn", "root"], model.qn == "+ 0");
+		pale(["qslash", "qd"], model.qd == "1" || model.qn == "+ 0");
 	}
 
 	function remove(keys, regex){
 		keys.forEach(function(key){
 			model[key] = model[key].replace(regex, "");
+		});
+	}
+
+	function pale(keys, isPale){
+		keys.forEach(function(key){
+			document.getElementById(key).className = isPale ? "pale" : "";
 		});
 	}
 	</script>
