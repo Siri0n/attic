@@ -50,12 +50,12 @@ function Field({game, rect}){
 	var events = {
 		beginTween(){
 			tweenCounter++;
-			console.log(tweenCounter);
+			tiles.forEach(row => row.forEach(tile => tile.inputEnabled = false));
 		},
 		endTween(){
 			console.log(--tweenCounter);
 			if(!tweenCounter){
-				console.log("lol");
+				tiles.forEach(row => row.forEach(tile => tile.inputEnabled = true));
 				while(afterTweenStop.length){
 					afterTweenStop.pop()();
 				}
@@ -88,6 +88,19 @@ function Field({game, rect}){
 					tiles[i][j + 2].switch();
 					adjust(rect);
 				});
+			}
+		},
+		drag(tile, dir){
+			if(dir && tile.y == 0){
+				return;
+			}
+			if(!dir && tile.y == rows - 1){
+				return;
+			}
+			var otherTile = dir ? tiles[tile.y-1][tile.x] : tiles[tile.y+1][tile.x];
+			if(tile.value + otherTile.value == 1){
+				tile.switch();
+				otherTile.switch();
 			}
 		}
 	}
@@ -204,11 +217,39 @@ function Tile({game, group, grid, x, y, value, events}){
 	);
 	group.add(g);
 	g.inputEnabled = true;
-	g.events.onInputDown.add(() => events.click(self));
+	g.input.enableDrag();
+
+	var lastPosition = null;
+
+	g.events.onDragStart.add(function(){
+		lastPosition = {x: g.x, y: g.y};
+		group.bringToTop(g);
+	});
+	g.events.onDragUpdate.add(function(){
+		self.x = self.x;
+		if(!lastPosition){
+			return;
+		}
+		if(lastPosition.y - g.y > grid.tileHeight){
+			g.y = lastPosition.y - grid.tileHeight;
+		}else if(g.y - lastPosition.y > grid.tileHeight){
+			g.y = lastPosition.y + grid.tileHeight;
+		}
+	});
+	g.events.onDragStop.add(function(){
+		if(Math.abs(lastPosition.y - g.y) > grid.tileHeight / 2){
+			events.drag(self, lastPosition.y - g.y > 0);
+		}else{
+			events.click(self);
+		}
+		self.y = self.y;
+		lastPosition = null;
+	});
 	
 	this.moveAndBack = function(dx, dy, flag){
 		var gx = g.x,
 			gy = g.y;
+		group.bringToTop(g);
 		events.beginTween();
 		if(flag){
 			game.add.tween(g).to({
@@ -240,11 +281,13 @@ function Tile({game, group, grid, x, y, value, events}){
 
 	this.destroy = function(){
 		g.destroy();
-	}
-
+	} 
 	this.moveX = function(_){
 		x = _;
 		game.add.tween(g).to({x: x*(grid.tileWidth + grid.margin)}, 300, "Linear", true);
+	}
+	this.bringToTop = function(){
+		group.bringToTop(g);
 	}
 	Object.defineProperties(this, {
 		value: {
@@ -268,6 +311,10 @@ function Tile({game, group, grid, x, y, value, events}){
 				g.y = y*(grid.tileHeight + grid.margin);
 			}
 		},
+		inputEnabled: {
+			get: () => g.inputEnabled,
+			set: (_) => g.inputEnabled = _
+		}
 	});
 
 }
