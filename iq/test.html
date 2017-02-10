@@ -6,7 +6,10 @@
 </head>
 <body>
 	<script>
-window.onbeforeunload = foo;
+window.onbeforeunload = function(){
+	foo();
+	return true;
+};
 function foo(){
 	window.opener.foo();
 }
