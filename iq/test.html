@@ -4,10 +4,13 @@
 	<meta charset="UTF-8">
 	<title>Document</title>
 </head>
-<body onunload="foo()">
+<body>
 	<script>
-function foo(){
-	window.opener.foo();
+
+var result = 180;
+
+window.onbeforeunload = function(){
+	window.opener.result(result);
 	return true;
 }
 	</script>
