@@ -5,8 +5,8 @@
 	<title>Document</title>
 </head>
 <body>
-	<button onClick="foo()">foo</button>
 	<script>
+window.onbeforeunload = foo;
 function foo(){
 	window.opener.foo();
 }
