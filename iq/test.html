@@ -4,13 +4,11 @@
 	<meta charset="UTF-8">
 	<title>Document</title>
 </head>
-<body>
+<body onunload="foo()">
 	<script>
-window.onbeforeunload = function(){
-	foo();
-};
 function foo(){
 	window.opener.foo();
+	return true;
 }
 	</script>
 </body>
