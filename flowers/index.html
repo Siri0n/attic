@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<canvas id="canvas"></canvas>
+	<script>
+
+var width = 1024;
+var height = 768;
+
+var canvas = document.getElementById("canvas");
+canvas.width = width;
+canvas.height = height;
+
+var ctx = canvas.getContext("2d");
+
+ctx.fillStyle = "#1a1";
+ctx.fillRect(0, 0, width, height);
+
+var minSize = 66;
+var maxSize = 265;
+
+var flowers = [];
+var x, y, r;
+
+var retries = 0;
+while(retries < 10){
+	x = Math.random()*(width - 2*minSize);
+	y = Math.random()*(height - 2*minSize);
+	r = maxSize;
+	r = Math.min(r, x, y, width - x, height - y);
+	r = flowers.reduce(function(r, f){
+		return Math.min(r, distance(x, y, f.x, f.y) - f.r);
+	}, r);
+	if(r >= minSize){
+		r = minSize + Math.random()*(r - minSize);
+		flowers.push({
+			x: x,
+			y: y,
+			r: r
+		});
+		retries = 0;
+	}else{
+		retries++;
+	}
+}
+
+flowers.forEach(function(f){
+	drawRandomFlower(ctx, f.x, f.y, f.r);
+});
+
+
+function drawRandomFlower(ctx, x, y, r){
+	var petalsCount = randomInt(7, 13);
+	var rotationAngle = 2*Math.PI/petalsCount;
+	var angle = Math.random()*2*Math.PI;
+	var i, petal;
+	var petalColor = "#fff";
+	ctx.save();
+	for(i = 0; i < petalsCount; i++){
+		ctx.fillStyle = petalColor;
+		ctx.strokeStyle = "#000";
+		ctx.lineWidth = 1;
+		petal = {};
+		petal.length = 2*r/3 + Math.random()*r/3;
+		petal.width = petal.length*(1/2 - Math.random()/4);
+		petal.offset = r/2;
+		petal.angle = angle + Math.random()*2*Math.PI/petalsCount/3;
+		petal.x = x + petal.offset*Math.cos(petal.angle);
+		petal.y = y + petal.offset*Math.sin(petal.angle);
+		drawEllipse(
+			ctx,
+			[petal.x, petal.y],
+			[petal.length/2, petal.width/2],
+			petal.angle
+		);
+		ctx.fillStyle = "#ff0";
+		drawEllipse(
+			ctx,
+			[x, y],
+			[r/3, r/3],
+			0
+		);
+		angle += rotationAngle;
+	}
+
+
+}
+
+function drawEllipse(ctx, coords, sizes, angle) { //спёрто
+    ctx.beginPath();
+    ctx.save(); // сохраняем стейт контекста
+    ctx.translate(coords[0], coords[1]); // перемещаем координаты в центр эллипса
+    ctx.rotate(angle); // поворачиваем координатную сетку на нужный угол
+    ctx.scale(1, sizes[1]/sizes[0]); // сжимаем по вертикали
+    ctx.arc(0, 0, sizes[0], 0, Math.PI*2); // рисуем круг
+    ctx.restore(); // восстанавливает стейт, иначе обводка и заливка будут сплющенными и повёрнутыми
+    ctx.stroke(); // обводим
+    ctx.fill();
+    ctx.closePath();
+}
+
+function randomInt(min, max){
+	return Math.floor(Math.random()*(max - min + 1)) + min;
+}
+
+function distance(x, y, x1, y1){
+	var dx = x - x1;
+	var dy = y - y1;
+	return Math.sqrt(dx*dx + dy*dy);
+}
+	</script>
+</body>
+</html>
