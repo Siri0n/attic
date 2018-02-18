@@ -11,47 +11,54 @@
 var width = 1024;
 var height = 768;
 
+var minSize = 66;
+var maxSize = 265;
+
 var canvas = document.getElementById("canvas");
+
 canvas.width = width;
 canvas.height = height;
 
 var ctx = canvas.getContext("2d");
 
-ctx.fillStyle = "#1a1";
-ctx.fillRect(0, 0, width, height);
+drawFlowers();
 
-var minSize = 66;
-var maxSize = 265;
+setInterval(drawFlowers, 2000);
 
-var flowers = [];
-var x, y, r;
+function drawFlowers(){
+	ctx.fillStyle = "#1a1";
+	ctx.fillRect(0, 0, width, height);
 
-var retries = 0;
-while(retries < 10){
-	x = Math.random()*(width - 2*minSize);
-	y = Math.random()*(height - 2*minSize);
-	r = maxSize;
-	r = Math.min(r, x, y, width - x, height - y);
-	r = flowers.reduce(function(r, f){
-		return Math.min(r, distance(x, y, f.x, f.y) - f.r);
-	}, r);
-	if(r >= minSize){
-		r = minSize + Math.random()*(r - minSize);
-		flowers.push({
-			x: x,
-			y: y,
-			r: r
-		});
-		retries = 0;
-	}else{
-		retries++;
+	var flowers = [];
+	var x, y, r;
+
+	var retries = 0;
+
+	while(retries < 10){
+		x = Math.random()*(width - 2*minSize);
+		y = Math.random()*(height - 2*minSize);
+		r = maxSize;
+		r = Math.min(r, x, y, width - x, height - y);
+		r = flowers.reduce(function(r, f){
+			return Math.min(r, distance(x, y, f.x, f.y) - f.r);
+		}, r);
+		if(r >= minSize){
+			r = minSize + Math.random()*(r - minSize);
+			flowers.push({
+				x: x,
+				y: y,
+				r: r
+			});
+			retries = 0;
+		}else{
+			retries++;
+		}
 	}
+
+	flowers.forEach(function(f){
+		drawRandomFlower(ctx, f.x, f.y, f.r);
+	});
 }
-
-flowers.forEach(function(f){
-	drawRandomFlower(ctx, f.x, f.y, f.r);
-});
-
 
 function drawRandomFlower(ctx, x, y, r){
 	var petalsCount = randomInt(7, 13);
