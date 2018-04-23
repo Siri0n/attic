@@ -12,6 +12,7 @@
 		padding: 0;
 		border: 0;
 		position: relative;
+		touch-action: none;
 	}
 	div{
 		width: 10vmin;
@@ -23,6 +24,7 @@ justify-content: center; */
 		font-size: 3vmin;
 		position: absolute;
 		user-select: none;
+		touch-action: none;
 	}
 	#you{
 		background-repeat: no-repeat;
@@ -37,7 +39,7 @@ justify-content: center; */
 	}
 </style>
 <body>
-	<audio id="heartbeat" src="heartbeat.wav" autoplay></audio>
+	<audio id="heartbeat" src="heartbeat.wav"></audio>
 	<div id="me"></div>
 	<div id="you"></div>
 	<script>
@@ -139,7 +141,7 @@ function changePulse(){
 	audio.volume = ratioToVolume(d);
 }
 
-audio.addEventListener("ended", function(e){
+function play(){
 	audio.play();
 	var time = 1000 / audio.playbackRate;
 	setTimeout(function(){
@@ -147,8 +149,11 @@ audio.addEventListener("ended", function(e){
 	}, time/4);
 	setTimeout(function(){
 		me.style.backgroundSize = "100%";
-	}, time/2); 
-});
+	}, time/2); 	
+}
+audio.addEventListener("ended", play);
+
+setTimeout(play, 1000);
 	</script>
 </body>
 </html>
