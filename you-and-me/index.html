@@ -66,12 +66,13 @@ function enableDrag(element, cb){
 	var mouse_0 = {};
 	function onDragStart(e){
 		console.log(e, "drag start!");
+		var pointer = e.changedTouches ? e.changedTouches[0] : e;
 		element.style.zIndex = 1;
 		var style = getComputedStyle(element);
 		pos_0.x = parseInt(style.left);
 		pos_0.y = parseInt(style.top);
-		mouse_0.x = e.clientX;
-		mouse_0.y = e.clientY;
+		mouse_0.x = pointer.clientX;
+		mouse_0.y = pointer.clientY;
 		document.addEventListener("mousemove", onDrag);
 		document.addEventListener("touchmove", onDrag);
 		document.addEventListener("mouseup", onDrop);
@@ -79,9 +80,11 @@ function enableDrag(element, cb){
 		document.addEventListener("touchcancel", onDrop);
 	}
 	function onDrag(e){
+		console.log(e, "Пынь!");
 		var pos = {};
-		pos.x = pos_0.x + e.clientX - mouse_0.x;
-		pos.y = pos_0.y + e.clientY - mouse_0.y;
+		var pointer = e.changedTouches ? e.changedTouches[0] : e;
+		pos.x = pos_0.x + pointer.clientX - mouse_0.x;
+		pos.y = pos_0.y + pointer.clientY - mouse_0.y;
 		var rect = document.body.getBoundingClientRect();
 		var elemRect = element.getBoundingClientRect();
 		pos.x = clamp(pos.x, 0, rect.width - elemRect.width);
