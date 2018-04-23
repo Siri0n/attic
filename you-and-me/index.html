@@ -63,7 +63,20 @@ function clamp(val, min, max){
 
 function enableDrag(element, cb){
 	var pos_0 = {};
-	var mouse_0 = {}
+	var mouse_0 = {};
+	function onDragStart(e){
+		element.style.zIndex = 1;
+		var style = getComputedStyle(element);
+		pos_0.x = parseInt(style.left);
+		pos_0.y = parseInt(style.top);
+		mouse_0.x = e.clientX;
+		mouse_0.y = e.clientY;
+		document.addEventListener("mousemove", onDrag);
+		document.addEventListener("touchmove", onDrag);
+		document.addEventListener("mouseup", onDrop);
+		document.addEventListener("touchend", onDrop);
+		document.addEventListener("touchcancel", onDrop);
+	}
 	function onDrag(e){
 		var pos = {};
 		pos.x = pos_0.x + e.clientX - mouse_0.x;
@@ -79,18 +92,13 @@ function enableDrag(element, cb){
 	function onDrop(){
 		document.removeEventListener("mousemove", onDrag);
 		document.removeEventListener("mouseup", onDrop);
+		document.removeEventListener("touchmove", onDrag);
+		document.removeEventListener("touchend", onDrop);
+		document.removeEventListener("touchcancel", onDrop);
 		element.style.zIndex = 0;
 	}
-	element.addEventListener("mousedown", function(e){
-		element.style.zIndex = 1;
-		var style = getComputedStyle(element);
-		pos_0.x = parseInt(style.left);
-		pos_0.y = parseInt(style.top);
-		mouse_0.x = e.clientX;
-		mouse_0.y = e.clientY;
-		document.addEventListener("mousemove", onDrag);
-		document.addEventListener("mouseup", onDrop);
-	})
+	element.addEventListener("mousedown", onDragStart);
+	element.addEventListener("touchstart", onDragStart);
 }
 
 var you = document.getElementById("you");
