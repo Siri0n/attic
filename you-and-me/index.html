@@ -14,7 +14,7 @@
 		position: relative;
 		touch-action: none;
 	}
-	div{
+	.someone{
 		width: 10vmin;
 		height: 10vmin;
 /* 		display: flex;
@@ -37,11 +37,25 @@ justify-content: center; */
 		background-position: center;
 		background-size: 100%;
 	}
+	#play{
+		position: absolute;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.5);
+		color: white;
+	}
+	.hidden{
+		display: none !important;
+	}
 </style>
 <body>
 	<audio id="heartbeat" src="heartbeat.wav"></audio>
-	<div id="me"></div>
-	<div id="you"></div>
+	<div id="me" class="someone"></div>
+	<div id="you" class="someone"></div>
+	<div id="play" class="hidden">Tap here!</div>
 	<script>
 var audio = document.getElementById("heartbeat");
 
@@ -112,14 +126,14 @@ var me = document.getElementById("me");
 
 var rect = document.body.getBoundingClientRect();
 if(rect.width < rect.height){
-	you.style.top = "5vmin";
+	you.style.top = "10vmin";
 	you.style.left = "calc(50% - 5vmin)";
-	me.style.bottom = "5vmin";
+	me.style.bottom = "10vmin";
 	me.style.left = "calc(50% - 5vmin)";
 }else{
-	you.style.left = "5vmin";
+	you.style.left = "10vmin";
 	you.style.top = "calc(50% - 5vmin)";
-	me.style.right = "5vmin";
+	me.style.right = "10vmin";
 	me.style.top = "calc(50% - 5vmin)";
 }
 changePulse()
@@ -153,7 +167,16 @@ function play(){
 }
 audio.addEventListener("ended", play);
 
-setTimeout(play, 1000);
+try{
+	play();
+}catch(e){
+	var playDiv = document.getElementById("play");
+	playDiv.classList.remove("hidden");
+	playDiv.addEventListener("click", function(){
+		play();
+		playDiv.remove();
+	})
+}
 	</script>
 </body>
 </html>
