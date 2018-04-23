@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Ты - там, я - здесь...</title>
+</head>
+<style>
+	body{
+		height: 100vh;
+		width: 100vw;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		position: relative;
+	}
+	div{
+		width: 10vmin;
+		height: 10vmin;
+/* 		display: flex;
+align-items: center;
+justify-content: center; */
+		cursor: pointer;
+		font-size: 3vmin;
+		position: absolute;
+		user-select: none;
+	}
+	#you{
+		background-repeat: no-repeat;
+		background-image: url("cat.png");
+		background-position: center;
+		background-size: 100%;
+	}
+	#me{
+		background-image: url("heart.png");
+		background-position: center;
+		background-size: 100%;
+	}
+</style>
+<body>
+	<audio id="heartbeat" src="heartbeat.wav" autoplay></audio>
+	<div id="me"></div>
+	<div id="you"></div>
+	<script>
+var audio = document.getElementById("heartbeat");
+
+function getDefaultDistance(){
+	var rect = document.body.getBoundingClientRect();
+	return Math.max(rect.width, rect.height);
+}
+function ratioToRate(ratio){
+	return 4 - 3*ratio;
+}
+function ratioToVolume(ratio){
+	return 1 - ratio/2;
+}
+function distance(o1, o2){
+	return Math.sqrt((o1.x - o2.x)*(o1.x - o2.x) + (o1.y - o2.y)*(o1.y - o2.y));
+}
+
+function clamp(val, min, max){
+	return Math.min(Math.max(val, min), max);
+}
+
+function enableDrag(element, cb){
+	var pos_0 = {};
+	var mouse_0 = {}
+	function onDrag(e){
+		var pos = {};
+		pos.x = pos_0.x + e.clientX - mouse_0.x;
+		pos.y = pos_0.y + e.clientY - mouse_0.y;
+		var rect = document.body.getBoundingClientRect();
+		var elemRect = element.getBoundingClientRect();
+		pos.x = clamp(pos.x, 0, rect.width - elemRect.width);
+		pos.y = clamp(pos.y, 0, rect.height - elemRect.height);
+		element.style.top = pos.y + "px";
+		element.style.left = pos.x + "px";
+		cb && cb();
+	}
+	function onDrop(){
+		document.removeEventListener("mousemove", onDrag);
+		document.removeEventListener("mouseup", onDrop);
+		element.style.zIndex = 0;
+	}
+	element.addEventListener("mousedown", function(e){
+		element.style.zIndex = 1;
+		var style = getComputedStyle(element);
+		pos_0.x = parseInt(style.left);
+		pos_0.y = parseInt(style.top);
+		mouse_0.x = e.clientX;
+		mouse_0.y = e.clientY;
+		document.addEventListener("mousemove", onDrag);
+		document.addEventListener("mouseup", onDrop);
+	})
+}
+
+var you = document.getElementById("you");
+var me = document.getElementById("me");
+
+var rect = document.body.getBoundingClientRect();
+if(rect.width < rect.height){
+	you.style.top = "5vmin";
+	you.style.left = "calc(50% - 5vmin)";
+	me.style.bottom = "5vmin";
+	me.style.left = "calc(50% - 5vmin)";
+}else{
+	you.style.left = "5vmin";
+	you.style.top = "calc(50% - 5vmin)";
+	me.style.right = "5vmin";
+	me.style.top = "calc(50% - 5vmin)";
+}
+changePulse()
+
+enableDrag(you, changePulse);
+enableDrag(me, changePulse);
+
+function getCenter(elem){
+	var rect = elem.getBoundingClientRect();
+	return {
+		x: rect.x + rect.width/2,
+		y: rect.y + rect.height/2
+	};
+}
+function changePulse(){
+	var d = distance(getCenter(you), getCenter(me));
+	d /= getDefaultDistance();
+	audio.playbackRate = ratioToRate(d);
+	audio.volume = ratioToVolume(d);
+}
+
+audio.addEventListener("ended", function(e){
+	audio.play();
+	var time = 1000 / audio.playbackRate;
+	setTimeout(function(){
+		me.style.backgroundSize = "110%";
+	}, time/4);
+	setTimeout(function(){
+		me.style.backgroundSize = "100%";
+	}, time/2); 
+});
+	</script>
+</body>
+</html>
