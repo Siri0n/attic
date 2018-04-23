@@ -65,6 +65,7 @@ function enableDrag(element, cb){
 	var pos_0 = {};
 	var mouse_0 = {};
 	function onDragStart(e){
+		console.log(e, "drag start!");
 		element.style.zIndex = 1;
 		var style = getComputedStyle(element);
 		pos_0.x = parseInt(style.left);
