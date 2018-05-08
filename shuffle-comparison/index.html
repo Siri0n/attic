@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Shuffle comparison</title>
+	<style>
+div{
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+}
+	</style>
+</head>
+<body>
+	<div>
+		Proper shuffle
+		<canvas id="true-random" width="512" height="512"></canvas>
+	</div>
+	<div>
+		Pseudo-shuffle
+		<canvas id="pseudo-random" width="512" height="512"></canvas>
+	</div>
+	<script>
+function lightness(ratio, n){
+	return ratio*n*50;
+}
+function testShuffle(canvasId, shuffle, arraySize, tries){
+	var result = [];
+	var arr = []
+	for(var i = 0; i < arraySize; i++){
+		result[i] = [];
+		arr[i] = i;
+		for(var j = 0; j < arraySize; j++){
+			result[i][j] = 0;
+		}
+	}
+	for(i = 0; i < tries; i++){
+		shuffle(arr.slice()).forEach(function(elem, index){
+			result[elem][index]++;
+		})
+	}
+	var canvas = document.getElementById(canvasId);
+	var ctx = canvas.getContext("2d");
+	var s = canvas.width / arraySize;
+	result.forEach(function(row, x){
+		row.forEach(function(count, y){
+			ctx.fillStyle = "hsl(0, 0%, " + lightness(count/tries, arraySize) + "%)";
+			ctx.fillRect(s*x, s*y, s, s);
+		})
+	})
+
+}
+
+function pseudoShuffle(arr){
+	return arr.sort(function(){return Math.random() - 0.5});
+}
+
+function shuffle(arr){
+	var j, temp;
+	for(var i = arr.length - 1; i > 0; i--){
+		j = Math.floor(Math.random()*(i + 1));
+		temp = arr[j];
+		arr[j] = arr[i];
+		arr[i] = temp;
+	}
+	return arr;
+}
+
+
+var query = {};
+window.location.search.slice(1).split("&").forEach(function(elem){
+	elem = elem.split("=");
+	if(elem[0]);
+	query[elem[0]] = elem[1];
+})
+var size = query.size || 32;
+var tries = query.tries || 10000;
+
+testShuffle("true-random", shuffle, size, tries);
+testShuffle("pseudo-random", pseudoShuffle, size, tries);
+
+	</script>
+</body>
+</html>
